@@ -1,6 +1,6 @@
 const configs = require("./config.json");
 const express = require("express");
-// const swaggerUi = require('swagger-ui-express');
+const swaggerUi = require('swagger-ui-express');
 const morgan = require("morgan");
 const cors = require("cors");
 const {
@@ -10,7 +10,7 @@ const {
 const fs = require("fs");
 const db = require("./models");
 
-// const swaggerDocument = require("./openapi.json");
+const swaggerDocument = require("./openapi.json");
 
 const https = require("https")
 
@@ -23,8 +23,8 @@ app.use(express.urlencoded({
     extended: true
 }));
 
-// // Create swagger docs
-// app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+// Create swagger docs
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // // logger
 // var successLogStream = fs.createWriteStream(path.join(__dirname, "logs/success.log"), {
