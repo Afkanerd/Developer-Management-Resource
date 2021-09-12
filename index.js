@@ -8,6 +8,7 @@ const {
     ErrorHandler
 } = require("./error.js");
 const fs = require("fs");
+const db = require("./models");
 
 // const swaggerDocument = require("./openapi.json");
 
@@ -51,7 +52,7 @@ app.use(express.urlencoded({
 app.use(morgan('dev'));
 
 // ROUTES
-require("./routes");
+require("./routes")(app, configs, db);
 
 // error handler
 let errorHandler = (err, req, res, next) => {

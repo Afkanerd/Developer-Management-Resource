@@ -14,11 +14,13 @@ module.exports = (sequelize, Sequelize) => {
             unique: true
         },
         scope: {
-            type: Sequelize.ENUM(['read', 'write', "rw"]),
-            defaultValue: "read",
+            type: Sequelize.ARRAY(Sequelize.STRING),
             allowNull: false
         },
-        email: Sequelize.STRING,
+        email: {
+            type: Sequelize.STRING,
+            unique: true
+        }
     });
 
     return Users;

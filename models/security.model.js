@@ -25,7 +25,7 @@ module.exports =
         };
 
         hash(data) {
-            var hash = crypto.createHash("sha512");
+            var hash = crypto.createHash("sha256");
             hash.update(data)
 
             return hash.digest("hex");
