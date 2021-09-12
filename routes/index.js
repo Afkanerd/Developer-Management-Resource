@@ -71,7 +71,7 @@ module.exports = (app, configs, db) => {
                 if (user[0].scope.includes(req.body.scope[i])) {
                     continue;
                 } else {
-                    throw new ErrorHandler(401, `INVALID SCOPE "${req.body.scope[i]}"`);
+                    throw new ErrorHandler(401, `INVALID SCOPE '${req.body.scope[i]}'`);
                 }
             }
 
@@ -136,6 +136,71 @@ module.exports = (app, configs, db) => {
 
             // RETURN STORED TOKEN AND PROVIDER
             return res.status(200).json(newUser)
+        } catch (error) {
+            next(error)
+        }
+    })
+
+    app.post("/projects/create", async (req, res, next) => {
+        try {
+            // ==================== REQUEST BODY CHECKS ====================
+            if (!req.body.auth_key) {
+                throw new ErrorHandler(400, "Auth_key cannot be empty");
+            };
+
+            if (!req.body.auth_id) {
+                throw new ErrorHandler(400, "Auth_id cannot be empty");
+            };
+
+            if (!req.body.project_name) {
+                throw new ErrorHandler(400, "Project_name cannot be empty");
+            };
+            // =============================================================
+
+            // SEARCH FOR USER IN DB
+            let user = await User.findAll({
+                where: {
+                    [Op.and]: [{
+                        auth_key: req.body.auth_key
+                    }, {
+                        auth_id: req.body.auth_id
+                    }]
+                }
+            }).catch(error => {
+                throw new ErrorHandler(500, error);
+            });
+
+            // RETURN = [], IF USER NOT FOUND
+            if (user.length < 1) {
+                throw new ErrorHandler(401, "User doesn't exist");
+            }
+
+            // IF RETURN HAS MORE THAN ONE ITEM
+            if (user.length > 1) {
+                throw new ErrorHandler(409, "Duplicate Users");
+            }
+
+            let project_check = await Project.findAll({
+                where: {
+                    name: req.body.project_name
+                }
+            }).catch(error => {
+                throw new ErrorHandler(500, error);
+            });
+
+            if (project_check.length > 0) {
+                throw new ErrorHandler(409, "Duplicate Projects");
+            }
+
+            let newProject = await Project.create({
+                name: req.body.project_name,
+                userId: user[0].id
+            }).catch(error => {
+                throw new ErrorHandler(500, error);
+            });
+
+            // RETURN STORED TOKEN AND PROVIDER
+            return res.status(200).json(newProject)
         } catch (error) {
             next(error)
         }
