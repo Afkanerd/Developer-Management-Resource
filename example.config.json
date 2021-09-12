@@ -3,7 +3,7 @@
         "MYSQL_HOST": "localhost",
         "MYSQL_USER": "root",
         "MYSQL_PASSWORD": "",
-        "MYSQL_DATABASE": "SMSwithoutBorders_dev_manager"
+        "MYSQL_DATABASE": "dev_manager"
     },
     "api": {
         "API_PORT": "9000"
