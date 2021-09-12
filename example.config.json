@@ -1,8 +1,18 @@
 {
     "database": {
-        "DATABASE": "",
-        "HOST": "localhost",
-        "PASSWORD": "",
-        "USER": "root"
+        "MYSQL_HOST": "localhost",
+        "MYSQL_USER": "root",
+        "MYSQL_PASSWORD": "",
+        "MYSQL_DATABASE": "SMSwithoutBorders_dev_manager"
+    },
+    "api": {
+        "API_PORT": "9000"
+    },
+    "ssl_api": {
+        "API_PORT": "",
+        "SESSION_SECRET": "",
+        "CERTIFICATE": "",
+        "KEY": "",
+        "PEM": ""
     }
 }

@@ -20,9 +20,12 @@
   "homepage": "https://github.com/Afkanerd/dev_management#readme",
   "dependencies": {
     "chai": "^4.3.4",
+    "cors": "^2.8.5",
     "express": "^4.17.1",
     "mocha": "^9.1.1",
+    "morgan": "^1.10.0",
     "mysql": "^2.18.1",
+    "mysql2": "^2.3.0",
     "sequelize": "^6.6.5"
   }
 }

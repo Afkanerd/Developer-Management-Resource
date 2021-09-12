@@ -1,13 +1,15 @@
 const mysql = require('mysql');
 const assert = require('chai').assert;
 const database = require("../config.json").database;
+const db = require("../models");
+const server = require("../index.js");
 
 describe('Starting tests ...', function () {
     describe('Database', function () {
         let connection = mysql.createConnection({
-            host: database.HOST,
-            user: database.USER,
-            password: database.PASSWORD
+            host: database.MYSQL_HOST,
+            user: database.MYSQL_USER,
+            password: database.MYSQL_PASSWORD
         });
 
         it('Connection', function (done) {
@@ -19,12 +21,37 @@ describe('Starting tests ...', function () {
             });
         });
 
-        it(`Creating database "${database.DATABASE}"`, function (done) {
-            connection.query(`CREATE DATABASE IF NOT EXISTS ${database.DATABASE};`, function (error, result) {
+        it(`Creating database "${database.MYSQL_DATABASE}"`, function (done) {
+            connection.query(`CREATE DATABASE IF NOT EXISTS ${database.MYSQL_DATABASE};`, function (error, result) {
                 if (error) done(error);
                 assert.isObject(result);
                 done();
             });
         });
+
+        it(`Creating database tables`, function (done) {
+            try {
+                db.sequelize.sync({
+                    alter: true,
+                    alter: {
+                        drop: false
+                    }
+                });
+                done();
+            } catch (err) {
+                done(err)
+            }
+        });
+    });
+});
+
+describe('Starting Server ...', function () {
+    it('Running', function (done) {
+        try {
+            server();
+            done();
+        } catch (err) {
+            done(err);
+        }
     });
 });
