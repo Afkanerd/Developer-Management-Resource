@@ -67,8 +67,10 @@ module.exports = (app, configs, db) => {
                 throw new ErrorHandler(409, "Duplicate Users");
             }
 
+            let userScope = user[0].scope.split(",");
+
             for (let i = 0; i < req.body.scope.length; i++) {
-                if (user[0].scope.includes(req.body.scope[i])) {
+                if (userScope.includes(req.body.scope[i])) {
                     continue;
                 } else {
                     throw new ErrorHandler(401, `INVALID SCOPE '${req.body.scope[i]}'`);
@@ -129,7 +131,7 @@ module.exports = (app, configs, db) => {
                 auth_id: security.hash(uuidv4()),
                 auth_key: security.hash(uuidv1()),
                 email: req.body.email,
-                scope: req.body.scope
+                scope: req.body.scope.toString()
             }).catch(error => {
                 throw new ErrorHandler(500, error);
             });

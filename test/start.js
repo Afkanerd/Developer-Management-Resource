@@ -29,17 +29,17 @@ describe('Starting tests ...', function () {
             });
         });
 
-        it(`Creating database tables`, function (done) {
+        it(`Creating database tables`, async function () {
             try {
-                db.sequelize.sync({
+                await db.sequelize.sync({
                     alter: true,
                     alter: {
                         drop: false
                     }
-                });
-                done();
+                })
+                assert.ok(true);
             } catch (err) {
-                done(err)
+                assert.fail(err)
             }
         });
     });

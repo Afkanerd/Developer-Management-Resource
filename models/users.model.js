@@ -14,7 +14,7 @@ module.exports = (sequelize, Sequelize) => {
             unique: true
         },
         scope: {
-            type: Sequelize.ARRAY(Sequelize.STRING),
+            type: Sequelize.TEXT,
             allowNull: false
         },
         email: {
