@@ -19,6 +19,7 @@ require('https').globalAgent.options.ca = rootCas
 module.exports = (app, configs, db) => {
     var User = db.users;
     var Project = db.projects;
+    var usersProjects = db.usersProjects;
 
     if ((configs.hasOwnProperty("ssl_api") && configs.hasOwnProperty("PEM")) && fs.existsSync(configs.ssl_api.PEM)) {
         rootCas.addFile('/var/www/ssl/server.pem')
@@ -97,7 +98,7 @@ module.exports = (app, configs, db) => {
     });
 
 
-    app.post("/users/create", async (req, res, next) => {
+    app.post("/users", async (req, res, next) => {
         try {
             // ==================== REQUEST BODY CHECKS ====================
             if (!req.body.email) {
@@ -143,7 +144,40 @@ module.exports = (app, configs, db) => {
         }
     })
 
-    app.post("/projects/create", async (req, res, next) => {
+    app.post("/projects", async (req, res, next) => {
+        try {
+            // ==================== REQUEST BODY CHECKS ====================
+            if (!req.body.project_name) {
+                throw new ErrorHandler(400, "Project_name cannot be empty");
+            };
+            // =============================================================
+
+            let project_check = await Project.findAll({
+                where: {
+                    name: req.body.project_name
+                }
+            }).catch(error => {
+                throw new ErrorHandler(500, error);
+            });
+
+            if (project_check.length > 0) {
+                throw new ErrorHandler(409, "Duplicate Projects");
+            }
+
+            let newProject = await Project.create({
+                name: req.body.project_name,
+            }).catch(error => {
+                throw new ErrorHandler(500, error);
+            });
+
+            // RETURN STORED TOKEN AND PROVIDER
+            return res.status(200).json(newProject)
+        } catch (error) {
+            next(error)
+        }
+    });
+
+    app.put("/users", async (req, res, next) => {
         try {
             // ==================== REQUEST BODY CHECKS ====================
             if (!req.body.auth_key) {
@@ -152,10 +186,6 @@ module.exports = (app, configs, db) => {
 
             if (!req.body.auth_id) {
                 throw new ErrorHandler(400, "Auth_id cannot be empty");
-            };
-
-            if (!req.body.project_name) {
-                throw new ErrorHandler(400, "Project_name cannot be empty");
             };
             // =============================================================
 
@@ -182,29 +212,117 @@ module.exports = (app, configs, db) => {
                 throw new ErrorHandler(409, "Duplicate Users");
             }
 
-            let project_check = await Project.findAll({
+            let result = [];
+
+            if (req.body.email) {
+                let newEmail = await user[0].update({
+                    email: req.body.email
+                }).catch(error => {
+                    throw new ErrorHandler(500, error);
+                });
+
+                result.push(newEmail);
+            }
+
+            if (req.body.scope) {
+                if (Array.isArray(req.body.scope) == false) {
+                    throw new ErrorHandler(401, "SCOPE MOST BE ARRAY OF STRINGS");
+                }
+
+                let newScope = await user[0].update({
+                    scope: req.body.scope.toString()
+                }).catch(error => {
+                    throw new ErrorHandler(500, error);
+                });
+
+                result.push(newScope);
+            }
+
+            if (req.body.project_id) {
+                let usersProject = await Project.findAll({
+                    where: {
+                        id: req.body.project_id
+                    }
+                }).catch(error => {
+                    throw new ErrorHandler(500, error);
+                });
+
+                if (usersProject.length < 1) {
+                    throw new ErrorHandler(401, "Project doesn't exist");
+                }
+
+                // IF RETURN HAS MORE THAN ONE ITEM
+                if (usersProject.length > 1) {
+                    throw new ErrorHandler(409, "Duplicate Projects");
+                }
+
+                let project = await usersProjects.findAll({
+                    where: {
+                        userId: user[0].id,
+                        projectId: usersProject[0].id
+                    }
+                }).catch(error => {
+                    throw new ErrorHandler(500, error);
+                });
+
+                // IF RETURN HAS MORE THAN ONE ITEM
+                if (project.length > 0) {
+                    throw new ErrorHandler(409, "User altready has this Project added");
+                }
+
+                let newProject = await usersProjects.create({
+                    userId: user[0].id,
+                    projectId: usersProject[0].id
+                }).catch(error => {
+                    throw new ErrorHandler(500, error);
+                });
+
+                result.push(newProject);
+            }
+
+            return res.status(200).json(result)
+        } catch (error) {
+            next(error)
+        }
+    })
+
+    app.put("/projects", async (req, res, next) => {
+        try {
+            // ==================== REQUEST BODY CHECKS ====================
+            if (!req.body.project_id) {
+                throw new ErrorHandler(400, "Project_id cannot be empty");
+            };
+
+            if (!req.body.project_name) {
+                throw new ErrorHandler(400, "Project_name cannot be empty");
+            };
+            // =============================================================
+
+            let project = await Project.findAll({
                 where: {
-                    name: req.body.project_name
+                    id: req.body.project_id
                 }
             }).catch(error => {
                 throw new ErrorHandler(500, error);
             });
 
-            if (project_check.length > 0) {
+            if (project.length < 1) {
+                throw new ErrorHandler(401, "INVALID PROJECT_ID");
+            }
+
+            if (project.length > 1) {
                 throw new ErrorHandler(409, "Duplicate Projects");
             }
 
-            let newProject = await Project.create({
+            let newProject = await project[0].update({
                 name: req.body.project_name,
-                userId: user[0].id
             }).catch(error => {
                 throw new ErrorHandler(500, error);
             });
 
-            // RETURN STORED TOKEN AND PROVIDER
             return res.status(200).json(newProject)
         } catch (error) {
             next(error)
         }
-    })
+    });
 }

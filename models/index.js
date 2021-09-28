@@ -17,11 +17,17 @@ db.Sequelize = Sequelize;
 
 db.users = require("./users.model.js")(sequelize, Sequelize);
 db.projects = require("./projects.model.js")(sequelize, Sequelize);
+db.usersProjects = require("./users_projects.model.js")(sequelize, Sequelize);
 
 // relationship users table -> tokens table 
-db.users.hasMany(db.projects, {
+db.users.belongsToMany(db.projects, {
+    through: "users_projects",
     foreignKey: "userId"
 });
-db.projects.belongsTo(db.users);
+
+db.projects.belongsToMany(db.users, {
+    through: "users_projects",
+    foreignKey: "projectId"
+});
 
 module.exports = db;
