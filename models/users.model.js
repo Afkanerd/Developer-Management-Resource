@@ -13,10 +13,6 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.STRING,
             unique: true
         },
-        scope: {
-            type: Sequelize.TEXT,
-            allowNull: false
-        },
         email: {
             type: Sequelize.STRING,
             unique: true

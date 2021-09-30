@@ -5,6 +5,11 @@ module.exports = (sequelize, Sequelize) => {
         },
         projectId: {
             type: Sequelize.STRING
+        },
+        scope: {
+            type: Sequelize.TEXT,
+            defaultValue: "read",
+            allowNull: false
         }
     });
 
