@@ -120,15 +120,10 @@ module.exports = (app, configs, db) => {
                 throw new ErrorHandler(409, "Duplicate Users");
             };
 
-            // if (Array.isArray(req.body.scope) == false) {
-            //     throw new ErrorHandler(401, "SCOPE MOST BE ARRAY OF STRINGS");
-            // }
-
             let newUser = await User.create({
                 auth_id: security.hash(uuidv4()),
                 auth_key: security.hash(uuidv1()),
                 email: req.body.email
-                // scope: req.body.scope.toString()
             }).catch(error => {
                 throw new ErrorHandler(500, error);
             });
@@ -261,7 +256,7 @@ module.exports = (app, configs, db) => {
         }
     });
 
-    app.put("/users", async (req, res, next) => {
+    app.put("/users/:user_id/projects/:project_id/scopes", async (req, res, next) => {
         try {
             // ==================== REQUEST BODY CHECKS ====================
             if (!req.body.auth_key) {
@@ -270,6 +265,10 @@ module.exports = (app, configs, db) => {
 
             if (!req.body.auth_id) {
                 throw new ErrorHandler(400, "Auth_id cannot be empty");
+            };
+
+            if (!req.body.scope) {
+                throw new ErrorHandler(400, "Scope cannot be empty");
             };
             // =============================================================
 
@@ -280,6 +279,8 @@ module.exports = (app, configs, db) => {
                         auth_key: req.body.auth_key
                     }, {
                         auth_id: req.body.auth_id
+                    }, {
+                        id: req.params.user_id
                     }]
                 }
             }).catch(error => {
@@ -296,75 +297,51 @@ module.exports = (app, configs, db) => {
                 throw new ErrorHandler(409, "Duplicate Users");
             }
 
-            let result = [];
-
-            if (req.body.email) {
-                let newEmail = await user[0].update({
-                    email: req.body.email
-                }).catch(error => {
-                    throw new ErrorHandler(500, error);
-                });
-
-                result.push(newEmail);
+            if (Array.isArray(req.body.scope) == false) {
+                throw new ErrorHandler(401, "SCOPE MOST BE ARRAY OF STRINGS");
             }
 
-            if (req.body.scope) {
-                if (Array.isArray(req.body.scope) == false) {
-                    throw new ErrorHandler(401, "SCOPE MOST BE ARRAY OF STRINGS");
+            let projectCheck = await Project.findAll({
+                where: {
+                    id: req.params.project_id
                 }
+            }).catch(error => {
+                throw new ErrorHandler(500, error);
+            });
 
-                let newScope = await user[0].update({
-                    scope: req.body.scope.toString()
-                }).catch(error => {
-                    throw new ErrorHandler(500, error);
-                });
-
-                result.push(newScope);
+            if (projectCheck.length < 1) {
+                throw new ErrorHandler(401, "INVALID PROJECT_ID");
             }
 
-            if (req.body.project_id) {
-                let usersProject = await Project.findAll({
-                    where: {
-                        id: req.body.project_id
-                    }
-                }).catch(error => {
-                    throw new ErrorHandler(500, error);
-                });
+            if (projectCheck.length > 1) {
+                throw new ErrorHandler(409, "Duplicate Projects");
+            }
 
-                if (usersProject.length < 1) {
-                    throw new ErrorHandler(401, "Project doesn't exist");
-                }
-
-                // IF RETURN HAS MORE THAN ONE ITEM
-                if (usersProject.length > 1) {
-                    throw new ErrorHandler(409, "Duplicate Projects");
-                }
-
-                let project = await usersProjects.findAll({
-                    where: {
-                        userId: user[0].id,
-                        projectId: usersProject[0].id
-                    }
-                }).catch(error => {
-                    throw new ErrorHandler(500, error);
-                });
-
-                // IF RETURN HAS MORE THAN ONE ITEM
-                if (project.length > 0) {
-                    throw new ErrorHandler(409, "User altready has this Project added");
-                }
-
-                let newProject = await usersProjects.create({
+            let project = await usersProjects.findAll({
+                where: {
                     userId: user[0].id,
-                    projectId: usersProject[0].id
-                }).catch(error => {
-                    throw new ErrorHandler(500, error);
-                });
+                    projectId: projectCheck[0].id
+                }
+            }).catch(error => {
+                throw new ErrorHandler(500, error);
+            });
 
-                result.push(newProject);
+            if (project.length < 1) {
+                throw new ErrorHandler(401, "User/Project record doesn't exist");
             }
 
-            return res.status(200).json(result)
+            // IF RETURN HAS MORE THAN ONE ITEM
+            if (project.length > 1) {
+                throw new ErrorHandler(409, "Duplicate User/Projects record");
+            }
+
+            let newScope = await project[0].update({
+                scope: req.body.scope.toString()
+            }).catch(error => {
+                throw new ErrorHandler(500, error);
+            });
+
+            return res.status(200).json(newScope)
         } catch (error) {
             next(error)
         }
