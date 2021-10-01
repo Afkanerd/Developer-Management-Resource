@@ -347,10 +347,10 @@ module.exports = (app, configs, db) => {
         }
     })
 
-    app.put("/projects", async (req, res, next) => {
+    app.put("/projects/:project_id/name", async (req, res, next) => {
         try {
             // ==================== REQUEST BODY CHECKS ====================
-            if (!req.body.project_id) {
+            if (!req.params.project_id) {
                 throw new ErrorHandler(400, "Project_id cannot be empty");
             };
 
@@ -361,7 +361,7 @@ module.exports = (app, configs, db) => {
 
             let project = await Project.findAll({
                 where: {
-                    id: req.body.project_id
+                    id: req.params.project_id
                 }
             }).catch(error => {
                 throw new ErrorHandler(500, error);

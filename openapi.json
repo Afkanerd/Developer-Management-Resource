@@ -27,8 +27,8 @@
       "description": "Change a Project's scope"
     },
     {
-      "name": "Update Projects",
-      "description": "Update a new Project"
+      "name": "Update Project name",
+      "description": "Change a Project's name"
     }
   ],
   "paths": {
@@ -418,11 +418,22 @@
             }
           }
         }
-      },
+      }
+    },
+    "/projects/{project_id}/name": {
       "put": {
         "tags": [
-          "Update Projects"
+          "Update Project name"
         ],
+        "parameters": [{
+          "in": "path",
+          "name": "project_id",
+          "schema": {
+            "type": "string"
+          },
+          "required": true,
+          "description": "Your project_id here"
+        }],
         "requestBody": {
           "required": true,
           "content": {
@@ -430,9 +441,6 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "project_id": {
-                    "type": "string"
-                  },
                   "project_name": {
                     "type": "string"
                   }
