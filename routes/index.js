@@ -25,7 +25,7 @@ module.exports = (app, configs, db) => {
         rootCas.addFile('/var/www/ssl/server.pem')
     };
 
-    app.post("/users/authentication", async (req, res, next) => {
+    app.post("/users/:user_id/projects/:project_id/authenticate", async (req, res, next) => {
         try {
             // ==================== REQUEST BODY CHECKS ====================
             if (!req.body.auth_key) {
@@ -36,12 +36,16 @@ module.exports = (app, configs, db) => {
                 throw new ErrorHandler(400, "Auth_id cannot be empty");
             };
 
-            if (!req.body.project_id) {
-                throw new ErrorHandler(400, "Project_id cannot be empty");
-            };
-
             if (!req.body.scope) {
                 throw new ErrorHandler(400, "scope cannot be empty");
+            };
+
+            if (!req.params.user_id) {
+                throw new ErrorHandler(400, "user_id cannot be empty");
+            };
+
+            if (!req.params.project_id) {
+                throw new ErrorHandler(400, "project_id cannot be empty");
             };
             // =============================================================
 
@@ -52,6 +56,8 @@ module.exports = (app, configs, db) => {
                         auth_key: req.body.auth_key
                     }, {
                         auth_id: req.body.auth_id
+                    }, {
+                        id: req.params.user_id
                     }]
                 }
             }).catch(error => {
@@ -68,7 +74,45 @@ module.exports = (app, configs, db) => {
                 throw new ErrorHandler(409, "Duplicate Users");
             }
 
-            let userScope = user[0].scope.split(",");
+            if (Array.isArray(req.body.scope) == false) {
+                throw new ErrorHandler(401, "SCOPE MOST BE ARRAY OF STRINGS");
+            }
+
+            let projectCheck = await Project.findAll({
+                where: {
+                    id: req.params.project_id
+                }
+            }).catch(error => {
+                throw new ErrorHandler(500, error);
+            });
+
+            if (projectCheck.length < 1) {
+                throw new ErrorHandler(401, "INVALID PROJECT_ID");
+            }
+
+            if (projectCheck.length > 1) {
+                throw new ErrorHandler(409, "Duplicate Projects");
+            }
+
+            let project = await usersProjects.findAll({
+                where: {
+                    userId: user[0].id,
+                    projectId: projectCheck[0].id
+                }
+            }).catch(error => {
+                throw new ErrorHandler(500, error);
+            });
+
+            if (project.length < 1) {
+                throw new ErrorHandler(403, "You're not allowed to access this project");
+            }
+
+            // IF RETURN HAS MORE THAN ONE ITEM
+            if (project.length > 1) {
+                throw new ErrorHandler(409, "Duplicate User/Projects record");
+            }
+
+            let userScope = project[0].scope.split(",");
 
             for (let i = 0; i < req.body.scope.length; i++) {
                 if (userScope.includes(req.body.scope[i])) {
@@ -76,18 +120,6 @@ module.exports = (app, configs, db) => {
                 } else {
                     throw new ErrorHandler(401, `INVALID SCOPE '${req.body.scope[i]}'`);
                 }
-            }
-
-            // GET ALL TOKENS UNDER CURRENT USER
-            let project = await user[0].getProjects({
-                where: {
-                    id: req.body.project_id
-                }
-            });
-
-            // RETURN = [], IF NO TOKEN EXIST UNDER CURRENT USER
-            if (project.length < 1) {
-                throw new ErrorHandler(401, "INVALID PROJECT_ID");
             }
 
             // RETURN STORED TOKEN AND PROVIDER

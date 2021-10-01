@@ -17,14 +17,14 @@
     },
     {
       "name": "Authenticate",
-      "description": "Authenticate a user's credentials"
+      "description": "Authenticate a user's access"
     },
     {
       "name": "Create Projects",
       "description": "Create a new Project"
     }, {
       "name": "Update Project Scope",
-      "description": "Change a Project's scope"
+      "description": "Change a Project's scope for a user"
     },
     {
       "name": "Update Project name",
@@ -164,11 +164,28 @@
         }
       }
     },
-    "/users/authentication": {
+    "/users/{user_id}/projects/{project_id}/authenticate": {
       "post": {
         "tags": [
           "Authenticate"
         ],
+        "parameters": [{
+          "in": "path",
+          "name": "user_id",
+          "schema": {
+            "type": "string"
+          },
+          "required": true,
+          "description": "Your user_id here"
+        }, {
+          "in": "path",
+          "name": "project_id",
+          "schema": {
+            "type": "string"
+          },
+          "required": true,
+          "description": "Your project_id here"
+        }],
         "requestBody": {
           "required": true,
           "content": {
@@ -180,9 +197,6 @@
                     "type": "string"
                   },
                   "auth_key": {
-                    "type": "string"
-                  },
-                  "project_id": {
                     "type": "string"
                   },
                   "scope": {
