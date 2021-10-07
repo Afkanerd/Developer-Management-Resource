@@ -412,4 +412,22 @@ module.exports = (app, configs, db) => {
             next(error)
         }
     });
+
+    app.get("/users/generate/keys", async (req, res, next) => {
+        try {
+            // ==================== REQUEST BODY CHECKS ====================
+
+            // =============================================================
+
+            let auth_id = security.hash(uuidv4())
+            let auth_key = security.hash(uuidv1())
+
+            return res.status(200).json({
+                auth_id: auth_id,
+                auth_key: auth_key,
+            })
+        } catch (error) {
+            next(error)
+        }
+    });
 }

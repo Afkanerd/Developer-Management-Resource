@@ -29,6 +29,10 @@
     {
       "name": "Update Project name",
       "description": "Change a Project's name"
+    },
+    {
+      "name": "Generate keys",
+      "description": "Generate auth_id and auth_key for admins"
     }
   ],
   "paths": {
@@ -829,6 +833,54 @@
                       "type": "string"
                     },
                     "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/generate/keys": {
+      "get": {
+        "tags": [
+          "Generate keys"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "auth_id": {
+                      "type": "string"
+                    },
+                    "auth_key": {
                       "type": "string"
                     }
                   }
