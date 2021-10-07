@@ -164,20 +164,12 @@
         }
       }
     },
-    "/users/{user_id}/projects/{project_id}/authenticate": {
+    "/users/projects/{project_id}/authenticate": {
       "post": {
         "tags": [
           "Authenticate"
         ],
         "parameters": [{
-          "in": "path",
-          "name": "user_id",
-          "schema": {
-            "type": "string"
-          },
-          "required": true,
-          "description": "Your user_id here"
-        }, {
           "in": "path",
           "name": "project_id",
           "schema": {

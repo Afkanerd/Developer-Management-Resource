@@ -25,7 +25,7 @@ module.exports = (app, configs, db) => {
         rootCas.addFile('/var/www/ssl/server.pem')
     };
 
-    app.post("/users/:user_id/projects/:project_id/authenticate", async (req, res, next) => {
+    app.post("/users/projects/:project_id/authenticate", async (req, res, next) => {
         try {
             // ==================== REQUEST BODY CHECKS ====================
             if (!req.body.auth_key) {
@@ -40,10 +40,6 @@ module.exports = (app, configs, db) => {
                 throw new ErrorHandler(400, "scope cannot be empty");
             };
 
-            if (!req.params.user_id) {
-                throw new ErrorHandler(400, "user_id cannot be empty");
-            };
-
             if (!req.params.project_id) {
                 throw new ErrorHandler(400, "project_id cannot be empty");
             };
@@ -56,8 +52,6 @@ module.exports = (app, configs, db) => {
                         auth_key: req.body.auth_key
                     }, {
                         auth_id: req.body.auth_id
-                    }, {
-                        id: req.params.user_id
                     }]
                 }
             }).catch(error => {
