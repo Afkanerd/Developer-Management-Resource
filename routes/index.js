@@ -269,10 +269,36 @@ module.exports = (app, configs, db) => {
     app.post("/projects", async (req, res, next) => {
         try {
             // ==================== REQUEST BODY CHECKS ====================
+            if (!req.body.auth_key) {
+                throw new ErrorHandler(400, "Auth_key cannot be empty");
+            };
+
+            if (!req.body.auth_id) {
+                throw new ErrorHandler(400, "Auth_id cannot be empty");
+            };
+
             if (!req.body.project_name) {
                 throw new ErrorHandler(400, "Project_name cannot be empty");
             };
             // =============================================================
+
+            // VERIFY ADMIN
+            let admin = await mysql.query(`SELECT * FROM admins WHERE auth_id = ? AND auth_key = ?`, {
+                replacements: [req.body.auth_id, req.body.auth_key],
+                type: QueryTypes.SELECT
+            }).catch(error => {
+                throw new ErrorHandler(500, error);
+            });
+
+            // RETURN = [], IF ADMIN NOT FOUND
+            if (admin.length < 1) {
+                throw new ErrorHandler(401, "Admin doesn't exist (Unauthorized)");
+            }
+
+            // IF RETURN HAS MORE THAN ONE ITEM
+            if (admin.length > 1) {
+                throw new ErrorHandler(409, "Duplicate Admins (Forbidden)");
+            }
 
             let project_check = await Project.findAll({
                 where: {

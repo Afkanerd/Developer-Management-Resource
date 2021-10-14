@@ -9,7 +9,7 @@
   }],
   "tags": [{
       "name": "Users",
-      "description": "Manage users"
+      "description": "Manage Users"
     },
     {
       "name": "Assign Project",
@@ -20,8 +20,8 @@
       "description": "Authenticate a user's access"
     },
     {
-      "name": "Create Projects",
-      "description": "Create a new Project"
+      "name": "Projects",
+      "description": "Manage Projects"
     }, {
       "name": "Update Project Scope",
       "description": "Change a Project's scope for a user"
@@ -199,6 +199,7 @@
             "description": "Your project_id here"
           }
         ],
+        "summary": "Authenticate user's project",
         "requestBody": {
           "required": true,
           "content": {
@@ -335,6 +336,7 @@
           "required": true,
           "description": "Your user_id here"
         }],
+        "summary": "Authenticate user",
         "requestBody": {
           "required": true,
           "content": {
@@ -454,7 +456,7 @@
     "/projects": {
       "post": {
         "tags": [
-          "Create Projects"
+          "Projects"
         ],
         "requestBody": {
           "required": true,
@@ -463,6 +465,12 @@
               "schema": {
                 "type": "object",
                 "properties": {
+                  "auth_id": {
+                    "type": "string"
+                  },
+                  "auth_key": {
+                    "type": "string"
+                  },
                   "project_name": {
                     "type": "string"
                   }
@@ -471,6 +479,7 @@
             }
           }
         },
+        "summary": "Create a new Project",
         "responses": {
           "200": {
             "description": "Successful",
