@@ -724,7 +724,7 @@
     "/users/{user_id}/projects": {
       "post": {
         "tags": [
-          "Assign Project"
+          "Users"
         ],
         "parameters": [{
           "in": "path",
@@ -735,6 +735,7 @@
           "required": true,
           "description": "Your user_id here"
         }],
+        "summary": "Assign user to project",
         "requestBody": {
           "required": true,
           "content": {
