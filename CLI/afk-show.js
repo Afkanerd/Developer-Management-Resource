@@ -36,10 +36,11 @@ connection.connect(function (err) {
         return;
     }
 
-    console.log('Success');
+    console.log('success:');
 
-    // connection.query('SELECT * FROM u WHERE id = ?', [userId], function (error, results, fields) {
-    //     if (error) throw error;
-    //     // ...
-    // });
+    connection.query('SELECT * FROM admins WHERE email = ?', [options.email], function (error, results, fields) {
+        if (error) throw error;
+
+        return console.log(results);
+    });
 });
