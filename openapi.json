@@ -8,8 +8,8 @@
     "url": "http://localhost:9000"
   }],
   "tags": [{
-      "name": "Create Users",
-      "description": "Create a new User"
+      "name": "Users",
+      "description": "Manage users"
     },
     {
       "name": "Assign Project",
@@ -39,8 +39,9 @@
     "/users": {
       "post": {
         "tags": [
-          "Create Users"
+          "Users"
         ],
+        "summary": "Create a new user",
         "requestBody": {
           "required": true,
           "content": {
@@ -48,6 +49,12 @@
               "schema": {
                 "type": "object",
                 "properties": {
+                  "auth_id": {
+                    "type": "string"
+                  },
+                  "auth_key": {
+                    "type": "string"
+                  },
                   "email": {
                     "type": "string"
                   }
