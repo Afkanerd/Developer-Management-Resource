@@ -168,20 +168,30 @@
         }
       }
     },
-    "/users/projects/{project_id}/authenticate": {
+    "/auth/users/{user_id}/projects/{project_id}": {
       "post": {
         "tags": [
           "Authenticate"
         ],
         "parameters": [{
-          "in": "path",
-          "name": "project_id",
-          "schema": {
-            "type": "string"
+            "in": "path",
+            "name": "user_id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "Your user_id here"
           },
-          "required": true,
-          "description": "Your project_id here"
-        }],
+          {
+            "in": "path",
+            "name": "project_id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "Your project_id here"
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
