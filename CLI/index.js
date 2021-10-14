@@ -10,6 +10,7 @@ program.version('0.0.1', '-v, --vers', 'output the current version');
 program
     .command('show', "Show admin creds")
     .command('config', "Configurations")
+    .command('add', "Add and Admin")
 
 program.showHelpAfterError();
 program.parse();

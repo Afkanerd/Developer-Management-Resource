@@ -14,8 +14,8 @@ program.parse(process.argv);
 const options = program.opts();
 if (!options.database) return console.log("error: required option '-d, --database <db_name>' cannot be empty");
 
-if (!fs.existsSync(`${process.cwd()}/config.json`)) {
-    fs.appendFileSync(`${process.cwd()}/config.json`,
+if (!fs.existsSync(`${__dirname}/config.json`)) {
+    fs.appendFileSync(`${__dirname}/config.json`,
         `
 {
 "MYSQL_DATABASE":"${options.database}"

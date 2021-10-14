@@ -19,7 +19,7 @@ db.users = require("./users.model.js")(sequelize, Sequelize);
 db.projects = require("./projects.model.js")(sequelize, Sequelize);
 db.usersProjects = require("./users_projects.model.js")(sequelize, Sequelize);
 
-// relationship users table -> tokens table 
+// relationship
 db.users.belongsToMany(db.projects, {
     through: "users_projects",
     foreignKey: "userId"
