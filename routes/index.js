@@ -440,18 +440,38 @@ module.exports = (app, configs, db) => {
             if (!req.body.scope) {
                 throw new ErrorHandler(400, "Scope cannot be empty");
             };
+
+            if (!req.params.user_id) {
+                throw new ErrorHandler(400, "User_id cannot be empty");
+            };
+
+            if (!req.params.project_id) {
+                throw new ErrorHandler(400, "Project_id cannot be empty");
+            };
             // =============================================================
+
+            // VERIFY ADMIN
+            let admin = await mysql.query(`SELECT * FROM admins WHERE auth_id = ? AND auth_key = ?`, {
+                replacements: [req.body.auth_id, req.body.auth_key],
+                type: QueryTypes.SELECT
+            }).catch(error => {
+                throw new ErrorHandler(500, error);
+            });
+
+            // RETURN = [], IF ADMIN NOT FOUND
+            if (admin.length < 1) {
+                throw new ErrorHandler(401, "Admin doesn't exist (Unauthorized)");
+            }
+
+            // IF RETURN HAS MORE THAN ONE ITEM
+            if (admin.length > 1) {
+                throw new ErrorHandler(409, "Duplicate Admins (Forbidden)");
+            }
 
             // SEARCH FOR USER IN DB
             let user = await User.findAll({
                 where: {
-                    [Op.and]: [{
-                        auth_key: req.body.auth_key
-                    }, {
-                        auth_id: req.body.auth_id
-                    }, {
-                        id: req.params.user_id
-                    }]
+                    id: req.params.user_id
                 }
             }).catch(error => {
                 throw new ErrorHandler(500, error);

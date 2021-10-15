@@ -12,27 +12,12 @@
       "description": "Manage Users"
     },
     {
-      "name": "Assign Project",
-      "description": "Add a Project to a User"
-    },
-    {
       "name": "Authenticate",
       "description": "Authenticate a user's access"
     },
     {
       "name": "Projects",
       "description": "Manage Projects"
-    }, {
-      "name": "Update Project Scope",
-      "description": "Change a Project's scope for a user"
-    },
-    {
-      "name": "Update Project name",
-      "description": "Change a Project's name"
-    },
-    {
-      "name": "Generate keys",
-      "description": "Generate auth_id and auth_key for admins"
     }
   ],
   "paths": {
@@ -869,7 +854,7 @@
     "/users/{user_id}/projects/{project_id}/scopes": {
       "put": {
         "tags": [
-          "Update Project Scope"
+          "Users"
         ],
         "parameters": [{
           "in": "path",
@@ -888,6 +873,7 @@
           "required": true,
           "description": "Your project_id here"
         }],
+        "summary": "Update user's project scope",
         "requestBody": {
           "required": true,
           "content": {
@@ -990,54 +976,6 @@
                       "type": "string"
                     },
                     "message": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal Server Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "string"
-                    },
-                    "statusCode": {
-                      "type": "string"
-                    },
-                    "message": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/users/generate/keys": {
-      "get": {
-        "tags": [
-          "Generate keys"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "auth_id": {
-                      "type": "string"
-                    },
-                    "auth_key": {
                       "type": "string"
                     }
                   }
