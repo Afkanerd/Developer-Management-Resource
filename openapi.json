@@ -574,7 +574,7 @@
     "/projects/{project_id}/name": {
       "put": {
         "tags": [
-          "Update Project name"
+          "Projects"
         ],
         "parameters": [{
           "in": "path",
@@ -585,6 +585,7 @@
           "required": true,
           "description": "Your project_id here"
         }],
+        "summary": "Update project's name",
         "requestBody": {
           "required": true,
           "content": {
@@ -592,6 +593,12 @@
               "schema": {
                 "type": "object",
                 "properties": {
+                  "auth_id": {
+                    "type": "string"
+                  },
+                  "auth_key": {
+                    "type": "string"
+                  },
                   "project_name": {
                     "type": "string"
                   }

@@ -540,6 +540,14 @@ module.exports = (app, configs, db) => {
     app.put("/projects/:project_id/name", async (req, res, next) => {
         try {
             // ==================== REQUEST BODY CHECKS ====================
+            if (!req.body.auth_key) {
+                throw new ErrorHandler(400, "Auth_key cannot be empty");
+            };
+
+            if (!req.body.auth_id) {
+                throw new ErrorHandler(400, "Auth_id cannot be empty");
+            };
+
             if (!req.params.project_id) {
                 throw new ErrorHandler(400, "Project_id cannot be empty");
             };
@@ -548,6 +556,24 @@ module.exports = (app, configs, db) => {
                 throw new ErrorHandler(400, "Project_name cannot be empty");
             };
             // =============================================================
+
+            // VERIFY ADMIN
+            let admin = await mysql.query(`SELECT * FROM admins WHERE auth_id = ? AND auth_key = ?`, {
+                replacements: [req.body.auth_id, req.body.auth_key],
+                type: QueryTypes.SELECT
+            }).catch(error => {
+                throw new ErrorHandler(500, error);
+            });
+
+            // RETURN = [], IF ADMIN NOT FOUND
+            if (admin.length < 1) {
+                throw new ErrorHandler(401, "Admin doesn't exist (Unauthorized)");
+            }
+
+            // IF RETURN HAS MORE THAN ONE ITEM
+            if (admin.length > 1) {
+                throw new ErrorHandler(409, "Duplicate Admins (Forbidden)");
+            }
 
             let project = await Project.findAll({
                 where: {
@@ -572,24 +598,6 @@ module.exports = (app, configs, db) => {
             });
 
             return res.status(200).json(newProject)
-        } catch (error) {
-            next(error)
-        }
-    });
-
-    app.get("/users/generate/keys", async (req, res, next) => {
-        try {
-            // ==================== REQUEST BODY CHECKS ====================
-
-            // =============================================================
-
-            let auth_id = security.hash(uuidv4())
-            let auth_key = security.hash(uuidv1())
-
-            return res.status(200).json({
-                auth_id: auth_id,
-                auth_key: auth_key,
-            })
         } catch (error) {
             next(error)
         }
