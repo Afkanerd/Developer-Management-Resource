@@ -8,39 +8,25 @@
     "url": "http://localhost:9000"
   }],
   "tags": [{
-      "name": "Create Users",
-      "description": "Create a new User"
-    },
-    {
-      "name": "Assign Project",
-      "description": "Add a Project to a User"
+      "name": "Users",
+      "description": "Manage Users"
     },
     {
       "name": "Authenticate",
       "description": "Authenticate a user's access"
     },
     {
-      "name": "Create Projects",
-      "description": "Create a new Project"
-    }, {
-      "name": "Update Project Scope",
-      "description": "Change a Project's scope for a user"
-    },
-    {
-      "name": "Update Project name",
-      "description": "Change a Project's name"
-    },
-    {
-      "name": "Generate keys",
-      "description": "Generate auth_id and auth_key for admins"
+      "name": "Projects",
+      "description": "Manage Projects"
     }
   ],
   "paths": {
     "/users": {
       "post": {
         "tags": [
-          "Create Users"
+          "Users"
         ],
+        "summary": "Create a new user",
         "requestBody": {
           "required": true,
           "content": {
@@ -48,6 +34,12 @@
               "schema": {
                 "type": "object",
                 "properties": {
+                  "auth_id": {
+                    "type": "string"
+                  },
+                  "auth_key": {
+                    "type": "string"
+                  },
                   "email": {
                     "type": "string"
                   }
@@ -168,20 +160,31 @@
         }
       }
     },
-    "/users/projects/{project_id}/authenticate": {
+    "/auth/users/{user_id}/projects/{project_id}": {
       "post": {
         "tags": [
           "Authenticate"
         ],
         "parameters": [{
-          "in": "path",
-          "name": "project_id",
-          "schema": {
-            "type": "string"
+            "in": "path",
+            "name": "user_id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "Your user_id here"
           },
-          "required": true,
-          "description": "Your project_id here"
-        }],
+          {
+            "in": "path",
+            "name": "project_id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "Your project_id here"
+          }
+        ],
+        "summary": "Authenticate user's project",
         "requestBody": {
           "required": true,
           "content": {
@@ -304,10 +307,141 @@
         }
       }
     },
+    "/auth/users/{user_id}": {
+      "post": {
+        "tags": [
+          "Authenticate"
+        ],
+        "parameters": [{
+          "in": "path",
+          "name": "user_id",
+          "schema": {
+            "type": "string"
+          },
+          "required": true,
+          "description": "Your user_id here"
+        }],
+        "summary": "Authenticate user",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "auth_id": {
+                    "type": "string"
+                  },
+                  "auth_key": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request (e.g missing required fields)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized (e.g User, Provder or Platform not found)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict (e.g Duplicate Users, Providers or Platforms found)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/projects": {
       "post": {
         "tags": [
-          "Create Projects"
+          "Projects"
         ],
         "requestBody": {
           "required": true,
@@ -316,6 +450,12 @@
               "schema": {
                 "type": "object",
                 "properties": {
+                  "auth_id": {
+                    "type": "string"
+                  },
+                  "auth_key": {
+                    "type": "string"
+                  },
                   "project_name": {
                     "type": "string"
                   }
@@ -324,6 +464,7 @@
             }
           }
         },
+        "summary": "Create a new Project",
         "responses": {
           "200": {
             "description": "Successful",
@@ -433,7 +574,7 @@
     "/projects/{project_id}/name": {
       "put": {
         "tags": [
-          "Update Project name"
+          "Projects"
         ],
         "parameters": [{
           "in": "path",
@@ -444,6 +585,7 @@
           "required": true,
           "description": "Your project_id here"
         }],
+        "summary": "Update project's name",
         "requestBody": {
           "required": true,
           "content": {
@@ -451,6 +593,12 @@
               "schema": {
                 "type": "object",
                 "properties": {
+                  "auth_id": {
+                    "type": "string"
+                  },
+                  "auth_key": {
+                    "type": "string"
+                  },
                   "project_name": {
                     "type": "string"
                   }
@@ -568,7 +716,7 @@
     "/users/{user_id}/projects": {
       "post": {
         "tags": [
-          "Assign Project"
+          "Users"
         ],
         "parameters": [{
           "in": "path",
@@ -579,6 +727,7 @@
           "required": true,
           "description": "Your user_id here"
         }],
+        "summary": "Assign user to project",
         "requestBody": {
           "required": true,
           "content": {
@@ -712,7 +861,7 @@
     "/users/{user_id}/projects/{project_id}/scopes": {
       "put": {
         "tags": [
-          "Update Project Scope"
+          "Users"
         ],
         "parameters": [{
           "in": "path",
@@ -731,6 +880,7 @@
           "required": true,
           "description": "Your project_id here"
         }],
+        "summary": "Update user's project scope",
         "requestBody": {
           "required": true,
           "content": {
@@ -833,54 +983,6 @@
                       "type": "string"
                     },
                     "message": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal Server Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "string"
-                    },
-                    "statusCode": {
-                      "type": "string"
-                    },
-                    "message": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/users/generate/keys": {
-      "get": {
-        "tags": [
-          "Generate keys"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "auth_id": {
-                      "type": "string"
-                    },
-                    "auth_key": {
                       "type": "string"
                     }
                   }

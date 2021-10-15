@@ -1,5 +1,5 @@
 {
-  "name": "dev_management",
+  "name": "afk",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -14,12 +14,16 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "bin": {
+    "afk": "CLI/index.js"
+  },
   "bugs": {
     "url": "https://github.com/Afkanerd/dev_management/issues"
   },
   "homepage": "https://github.com/Afkanerd/dev_management#readme",
   "dependencies": {
     "chai": "^4.3.4",
+    "commander": "^8.2.0",
     "cors": "^2.8.5",
     "express": "^4.17.1",
     "mocha": "^9.1.1",

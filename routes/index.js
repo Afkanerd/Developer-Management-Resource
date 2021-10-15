@@ -20,12 +20,74 @@ module.exports = (app, configs, db) => {
     var User = db.users;
     var Project = db.projects;
     var usersProjects = db.usersProjects;
+    var mysql = db.sequelize
 
     if ((configs.hasOwnProperty("ssl_api") && configs.hasOwnProperty("PEM")) && fs.existsSync(configs.ssl_api.PEM)) {
         rootCas.addFile('/var/www/ssl/server.pem')
     };
 
-    app.post("/users/projects/:project_id/authenticate", async (req, res, next) => {
+
+    app.post("/auth/users/:user_id", async (req, res, next) => {
+        try {
+            // ==================== REQUEST BODY CHECKS ====================
+            if (!req.body.auth_key) {
+                throw new ErrorHandler(400, "Auth_key cannot be empty");
+            };
+
+            if (!req.body.auth_id) {
+                throw new ErrorHandler(400, "Auth_id cannot be empty");
+            };
+
+            if (!req.params.user_id) {
+                throw new ErrorHandler(400, "user_id cannot be empty");
+            };
+
+            // =============================================================
+
+            // VERIFY ADMIN
+            let admin = await mysql.query(`SELECT * FROM admins WHERE auth_id = ? AND auth_key = ?`, {
+                replacements: [req.body.auth_id, req.body.auth_key],
+                type: QueryTypes.SELECT
+            }).catch(error => {
+                throw new ErrorHandler(500, error);
+            });
+
+            // RETURN = [], IF ADMIN NOT FOUND
+            if (admin.length < 1) {
+                throw new ErrorHandler(401, "Admin doesn't exist (Unauthorized)");
+            }
+
+            // IF RETURN HAS MORE THAN ONE ITEM
+            if (admin.length > 1) {
+                throw new ErrorHandler(409, "Duplicate Admins (Forbidden)");
+            }
+
+            // SEARCH FOR USER IN DB
+            let user = await User.findAll({
+                where: {
+                    id: req.params.user_id
+                }
+            }).catch(error => {
+                throw new ErrorHandler(500, error);
+            });
+
+            // RETURN = [], IF USER NOT FOUND
+            if (user.length < 1) {
+                throw new ErrorHandler(401, "User doesn't exist");
+            }
+
+            // IF RETURN HAS MORE THAN ONE ITEM
+            if (user.length > 1) {
+                throw new ErrorHandler(409, "Duplicate Users");
+            }
+
+            return res.status(200).json(true)
+        } catch (error) {
+            next(error)
+        }
+    });
+
+    app.post("/auth/users/:user_id/projects/:project_id", async (req, res, next) => {
         try {
             // ==================== REQUEST BODY CHECKS ====================
             if (!req.body.auth_key) {
@@ -40,19 +102,37 @@ module.exports = (app, configs, db) => {
                 throw new ErrorHandler(400, "scope cannot be empty");
             };
 
+            if (!req.params.user_id) {
+                throw new ErrorHandler(400, "user_id cannot be empty");
+            };
+
             if (!req.params.project_id) {
                 throw new ErrorHandler(400, "project_id cannot be empty");
             };
             // =============================================================
 
+            // VERIFY ADMIN
+            let admin = await mysql.query(`SELECT * FROM admins WHERE auth_id = ? AND auth_key = ?`, {
+                replacements: [req.body.auth_id, req.body.auth_key],
+                type: QueryTypes.SELECT
+            }).catch(error => {
+                throw new ErrorHandler(500, error);
+            });
+
+            // RETURN = [], IF ADMIN NOT FOUND
+            if (admin.length < 1) {
+                throw new ErrorHandler(401, "Admin doesn't exist (Unauthorized)");
+            }
+
+            // IF RETURN HAS MORE THAN ONE ITEM
+            if (admin.length > 1) {
+                throw new ErrorHandler(409, "Duplicate Admins (Forbidden)");
+            }
+
             // SEARCH FOR USER IN DB
             let user = await User.findAll({
                 where: {
-                    [Op.and]: [{
-                        auth_key: req.body.auth_key
-                    }, {
-                        auth_id: req.body.auth_id
-                    }]
+                    id: req.params.user_id
                 }
             }).catch(error => {
                 throw new ErrorHandler(500, error);
@@ -127,10 +207,36 @@ module.exports = (app, configs, db) => {
     app.post("/users", async (req, res, next) => {
         try {
             // ==================== REQUEST BODY CHECKS ====================
+            if (!req.body.auth_key) {
+                throw new ErrorHandler(400, "Auth_key cannot be empty");
+            };
+
+            if (!req.body.auth_id) {
+                throw new ErrorHandler(400, "Auth_id cannot be empty");
+            };
+
             if (!req.body.email) {
                 throw new ErrorHandler(400, "Email cannot be empty");
             };
             // =============================================================
+
+            // VERIFY ADMIN
+            let admin = await mysql.query(`SELECT * FROM admins WHERE auth_id = ? AND auth_key = ?`, {
+                replacements: [req.body.auth_id, req.body.auth_key],
+                type: QueryTypes.SELECT
+            }).catch(error => {
+                throw new ErrorHandler(500, error);
+            });
+
+            // RETURN = [], IF ADMIN NOT FOUND
+            if (admin.length < 1) {
+                throw new ErrorHandler(401, "Admin doesn't exist (Unauthorized)");
+            }
+
+            // IF RETURN HAS MORE THAN ONE ITEM
+            if (admin.length > 1) {
+                throw new ErrorHandler(409, "Duplicate Admins (Forbidden)");
+            }
 
             // SEARCH FOR USER IN DB
             let user = await User.findAll({
@@ -163,10 +269,36 @@ module.exports = (app, configs, db) => {
     app.post("/projects", async (req, res, next) => {
         try {
             // ==================== REQUEST BODY CHECKS ====================
+            if (!req.body.auth_key) {
+                throw new ErrorHandler(400, "Auth_key cannot be empty");
+            };
+
+            if (!req.body.auth_id) {
+                throw new ErrorHandler(400, "Auth_id cannot be empty");
+            };
+
             if (!req.body.project_name) {
                 throw new ErrorHandler(400, "Project_name cannot be empty");
             };
             // =============================================================
+
+            // VERIFY ADMIN
+            let admin = await mysql.query(`SELECT * FROM admins WHERE auth_id = ? AND auth_key = ?`, {
+                replacements: [req.body.auth_id, req.body.auth_key],
+                type: QueryTypes.SELECT
+            }).catch(error => {
+                throw new ErrorHandler(500, error);
+            });
+
+            // RETURN = [], IF ADMIN NOT FOUND
+            if (admin.length < 1) {
+                throw new ErrorHandler(401, "Admin doesn't exist (Unauthorized)");
+            }
+
+            // IF RETURN HAS MORE THAN ONE ITEM
+            if (admin.length > 1) {
+                throw new ErrorHandler(409, "Duplicate Admins (Forbidden)");
+            }
 
             let project_check = await Project.findAll({
                 where: {
@@ -213,16 +345,28 @@ module.exports = (app, configs, db) => {
             };
             // =============================================================
 
+            // VERIFY ADMIN
+            let admin = await mysql.query(`SELECT * FROM admins WHERE auth_id = ? AND auth_key = ?`, {
+                replacements: [req.body.auth_id, req.body.auth_key],
+                type: QueryTypes.SELECT
+            }).catch(error => {
+                throw new ErrorHandler(500, error);
+            });
+
+            // RETURN = [], IF ADMIN NOT FOUND
+            if (admin.length < 1) {
+                throw new ErrorHandler(401, "Admin doesn't exist (Unauthorized)");
+            }
+
+            // IF RETURN HAS MORE THAN ONE ITEM
+            if (admin.length > 1) {
+                throw new ErrorHandler(409, "Duplicate Admins (Forbidden)");
+            }
+
             // SEARCH FOR USER IN DB
             let user = await User.findAll({
                 where: {
-                    [Op.and]: [{
-                        auth_key: req.body.auth_key
-                    }, {
-                        auth_id: req.body.auth_id
-                    }, {
-                        id: req.params.user_id
-                    }]
+                    id: req.params.user_id
                 }
             }).catch(error => {
                 throw new ErrorHandler(500, error);
@@ -296,18 +440,38 @@ module.exports = (app, configs, db) => {
             if (!req.body.scope) {
                 throw new ErrorHandler(400, "Scope cannot be empty");
             };
+
+            if (!req.params.user_id) {
+                throw new ErrorHandler(400, "User_id cannot be empty");
+            };
+
+            if (!req.params.project_id) {
+                throw new ErrorHandler(400, "Project_id cannot be empty");
+            };
             // =============================================================
+
+            // VERIFY ADMIN
+            let admin = await mysql.query(`SELECT * FROM admins WHERE auth_id = ? AND auth_key = ?`, {
+                replacements: [req.body.auth_id, req.body.auth_key],
+                type: QueryTypes.SELECT
+            }).catch(error => {
+                throw new ErrorHandler(500, error);
+            });
+
+            // RETURN = [], IF ADMIN NOT FOUND
+            if (admin.length < 1) {
+                throw new ErrorHandler(401, "Admin doesn't exist (Unauthorized)");
+            }
+
+            // IF RETURN HAS MORE THAN ONE ITEM
+            if (admin.length > 1) {
+                throw new ErrorHandler(409, "Duplicate Admins (Forbidden)");
+            }
 
             // SEARCH FOR USER IN DB
             let user = await User.findAll({
                 where: {
-                    [Op.and]: [{
-                        auth_key: req.body.auth_key
-                    }, {
-                        auth_id: req.body.auth_id
-                    }, {
-                        id: req.params.user_id
-                    }]
+                    id: req.params.user_id
                 }
             }).catch(error => {
                 throw new ErrorHandler(500, error);
@@ -376,6 +540,14 @@ module.exports = (app, configs, db) => {
     app.put("/projects/:project_id/name", async (req, res, next) => {
         try {
             // ==================== REQUEST BODY CHECKS ====================
+            if (!req.body.auth_key) {
+                throw new ErrorHandler(400, "Auth_key cannot be empty");
+            };
+
+            if (!req.body.auth_id) {
+                throw new ErrorHandler(400, "Auth_id cannot be empty");
+            };
+
             if (!req.params.project_id) {
                 throw new ErrorHandler(400, "Project_id cannot be empty");
             };
@@ -384,6 +556,24 @@ module.exports = (app, configs, db) => {
                 throw new ErrorHandler(400, "Project_name cannot be empty");
             };
             // =============================================================
+
+            // VERIFY ADMIN
+            let admin = await mysql.query(`SELECT * FROM admins WHERE auth_id = ? AND auth_key = ?`, {
+                replacements: [req.body.auth_id, req.body.auth_key],
+                type: QueryTypes.SELECT
+            }).catch(error => {
+                throw new ErrorHandler(500, error);
+            });
+
+            // RETURN = [], IF ADMIN NOT FOUND
+            if (admin.length < 1) {
+                throw new ErrorHandler(401, "Admin doesn't exist (Unauthorized)");
+            }
+
+            // IF RETURN HAS MORE THAN ONE ITEM
+            if (admin.length > 1) {
+                throw new ErrorHandler(409, "Duplicate Admins (Forbidden)");
+            }
 
             let project = await Project.findAll({
                 where: {
@@ -408,24 +598,6 @@ module.exports = (app, configs, db) => {
             });
 
             return res.status(200).json(newProject)
-        } catch (error) {
-            next(error)
-        }
-    });
-
-    app.get("/users/generate/keys", async (req, res, next) => {
-        try {
-            // ==================== REQUEST BODY CHECKS ====================
-
-            // =============================================================
-
-            let auth_id = security.hash(uuidv4())
-            let auth_key = security.hash(uuidv1())
-
-            return res.status(200).json({
-                auth_id: auth_id,
-                auth_key: auth_key,
-            })
         } catch (error) {
             next(error)
         }
