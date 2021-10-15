@@ -63,3 +63,7 @@ e.g
 ```
 afk show --help
 ```
+* Uninstall CLI
+```
+sudo npm rm afk -g
+```
