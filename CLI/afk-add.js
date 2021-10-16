@@ -13,6 +13,7 @@ const {
     v1: uuidv1
 } = require('uuid');
 var generator = require('generate-password');
+const MOMENT = require('moment');
 
 program
     .requiredOption('-u, --username <username>', 'mysql username')
@@ -55,10 +56,12 @@ connection.connect(function (err) {
             id: uuidv1(),
             auth_id: auth_id,
             auth_key: auth_key,
-            email: options.email
+            email: options.email,
+            createdAt: MOMENT().format('YYYY-MM-DD  HH:mm:ss.000'),
+            updatedAt: MOMENT().format('YYYY-MM-DD  HH:mm:ss.000')
         };
 
-        connection.query('CREATE TABLE IF NOT EXISTS admins(id VARCHAR(64), auth_id VARCHAR(255) NOT NULL UNIQUE, auth_key VARCHAR(255) NOT NULL UNIQUE, email VARCHAR(255) NOT NULL UNIQUE, createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, updatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, PRIMARY KEY(id));', function (error, results, fields) {
+        connection.query('CREATE TABLE IF NOT EXISTS admins(id VARCHAR(64), auth_id VARCHAR(255) UNIQUE, auth_key VARCHAR(255) UNIQUE, email VARCHAR(255) UNIQUE, createdAt DATETIME, updatedAt DATETIME, PRIMARY KEY(id));', function (error, results, fields) {
             if (error) throw error.message;
 
             // console.log(results)
@@ -99,10 +102,12 @@ connection.connect(function (err) {
             auth_id: auth_id,
             auth_key: auth_key,
             email: options.email,
-            password: password
+            password: password,
+            createdAt: MOMENT().format('YYYY-MM-DD  HH:mm:ss.000'),
+            updatedAt: MOMENT().format('YYYY-MM-DD  HH:mm:ss.000')
         };
 
-        connection.query('CREATE TABLE IF NOT EXISTS users(id VARCHAR(64), auth_id VARCHAR(255) NOT NULL UNIQUE, auth_key VARCHAR(255) NOT NULL UNIQUE, email VARCHAR(255) NOT NULL UNIQUE, password VARCHAR(255) NOT NULL, createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, updatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, PRIMARY KEY(id));', function (error, results, fields) {
+        connection.query('CREATE TABLE IF NOT EXISTS users(id VARCHAR(64), auth_id VARCHAR(255) UNIQUE, auth_key VARCHAR(255) UNIQUE, email VARCHAR(255) UNIQUE, password VARCHAR(255), createdAt DATETIME, updatedAt DATETIME, PRIMARY KEY(id));', function (error, results, fields) {
             if (error) throw error.message;
 
             // console.log(results)

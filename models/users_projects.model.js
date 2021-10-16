@@ -10,6 +10,12 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.TEXT,
             defaultValue: "read",
             allowNull: false
+        },
+        createdAt: {
+            type: Sequelize.DATE
+        },
+        updatedAt: {
+            type: Sequelize.DATE
         }
     });
 

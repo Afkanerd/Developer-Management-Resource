@@ -8,6 +8,12 @@ module.exports = (sequelize, Sequelize) => {
         name: {
             type: Sequelize.STRING,
             unique: true
+        },
+        createdAt: {
+            type: Sequelize.DATE
+        },
+        updatedAt: {
+            type: Sequelize.DATE
         }
     });
 

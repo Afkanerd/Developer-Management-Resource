@@ -21,12 +21,10 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.STRING,
         },
         createdAt: {
-            type: Sequelize.DATE,
-            defaultValue: sequelize.literal('CURRENT_TIMESTAMP')
+            type: Sequelize.DATE
         },
         updatedAt: {
-            type: Sequelize.DATE,
-            defaultValue: sequelize.literal('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP')
+            type: Sequelize.DATE
         }
     });
 

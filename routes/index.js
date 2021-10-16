@@ -11,6 +11,7 @@ const {
     Op,
     QueryTypes
 } = require("sequelize");
+var generator = require('generate-password');
 
 var rootCas = require('ssl-root-cas').create()
 
@@ -252,10 +253,25 @@ module.exports = (app, configs, db) => {
                 throw new ErrorHandler(409, "Duplicate Users");
             };
 
+            let password = "";
+
+            if (req.body.password) {
+                password = req.body.password
+            } else {
+                password = generator.generate({
+                    length: 10,
+                    numbers: true,
+                    symbols: true,
+                    lowercase: true,
+                    uppercase: true
+                });
+            }
+
             let newUser = await User.create({
                 auth_id: security.hash(uuidv4()),
                 auth_key: security.hash(uuidv1()),
-                email: req.body.email
+                email: req.body.email,
+                password: password
             }).catch(error => {
                 throw new ErrorHandler(500, error);
             });
