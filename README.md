@@ -59,6 +59,10 @@ afk add --email example@email.com --username mysql_username --password mysql_pas
 ```
 afk add --email example@email.com --generate test_password --username mysql_username --password mysql_password
 ```
+* Assign user to project
+```
+afk assign --email example@email.com --task test_project_name --scope read,write --username mysql_username --password mysql_password
+```
 * Update CLI database
 ```
 afk config --database test_db

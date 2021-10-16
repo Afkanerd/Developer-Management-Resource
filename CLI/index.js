@@ -11,6 +11,7 @@ program
     .command('show', "Show admin creds")
     .command('config', "Configurations")
     .command('add', "Add and Admin")
+    .command('assign', "Assign user to project")
 
 program.showHelpAfterError();
 program.parse();
