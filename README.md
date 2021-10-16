@@ -39,7 +39,11 @@ npm start
 http://localhost:{PORT}/api-docs
 ```
 ### CLI Commands
-* Show creds by email
+* Show admin creds by email
+```
+afk show --admin --email example@email.com --username mysql_username --password mysql_password
+```
+* Show users creds by email
 ```
 afk show --email example@email.com --username mysql_username --password mysql_password
 ```

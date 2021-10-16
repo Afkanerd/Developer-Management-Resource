@@ -10,7 +10,8 @@ const fs = require("fs");
 program
     .requiredOption('-u, --username <username>', 'mysql username')
     .requiredOption('-p, --password <password>', 'mysql password')
-    .requiredOption('-e, --email <email>', 'admin email');
+    .requiredOption('-e, --email <email>', 'admin email')
+    .option('-a, --admin', 'Switch to admin database');
 
 program.parse(process.argv);
 
@@ -38,10 +39,19 @@ connection.connect(function (err) {
 
     console.log('success:');
 
-    connection.query('SELECT * FROM admins WHERE email = ?', [options.email], function (error, results, fields) {
-        if (error) throw error;
+    if (options.admin) {
+        connection.query('SELECT * FROM admins WHERE email = ?', [options.email], function (error, results, fields) {
+            if (error) throw error;
 
-        console.log(results);
-        process.exit();
-    });
+            console.log(results);
+            process.exit();
+        });
+    } else {
+        connection.query('SELECT * FROM users WHERE email = ?', [options.email], function (error, results, fields) {
+            if (error) throw error;
+
+            console.log(results);
+            process.exit();
+        });
+    }
 });
