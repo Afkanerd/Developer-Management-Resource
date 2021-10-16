@@ -7,15 +7,26 @@ module.exports = (sequelize, Sequelize) => {
         },
         auth_id: {
             type: Sequelize.STRING,
-            unique: true
+            unique: true,
         },
         auth_key: {
             type: Sequelize.STRING,
-            unique: true
+            unique: true,
         },
         email: {
             type: Sequelize.STRING,
-            unique: true
+            unique: true,
+        },
+        password: {
+            type: Sequelize.STRING,
+        },
+        createdAt: {
+            type: Sequelize.DATE,
+            defaultValue: sequelize.literal('CURRENT_TIMESTAMP')
+        },
+        updatedAt: {
+            type: Sequelize.DATE,
+            defaultValue: sequelize.literal('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP')
         }
     });
 

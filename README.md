@@ -41,11 +41,19 @@ http://localhost:{PORT}/api-docs
 ### CLI Commands
 * Show creds by email
 ```
-afk show --email example@email.com --username test_username --password test_password
+afk show --email example@email.com --username mysql_username --password mysql_password
 ```
 * Add admin
 ```
-afk add --email example@email.com --username test_username --password test_password
+afk add --admin --email example@email.com --username mysql_username --password mysql_password
+```
+* Add user with auto-generate password
+```
+afk add --email example@email.com --username mysql_username --password mysql_password
+```
+* Add user with manually inputed password
+```
+afk add --email example@email.com --generate test_password --username mysql_username --password mysql_password
 ```
 * Update CLI database
 ```
