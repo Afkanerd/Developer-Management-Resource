@@ -12,6 +12,7 @@ program
     .command('config', "Configurations")
     .command('add', "Add and Admin")
     .command('assign', "Assign user to project")
+    .command('update', "Update user's project scope")
 
 program.showHelpAfterError();
 program.parse();
