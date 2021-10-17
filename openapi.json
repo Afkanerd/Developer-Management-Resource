@@ -482,6 +482,12 @@
                   },
                   "auth_key": {
                     "type": "string"
+                  },
+                  "dev_auth_id": {
+                    "type": "string"
+                  },
+                  "dev_auth_key": {
+                    "type": "string"
                   }
                 }
               }

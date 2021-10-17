@@ -43,6 +43,14 @@ module.exports = (app, configs, db) => {
                 throw new ErrorHandler(400, "user_id cannot be empty");
             };
 
+            if (!req.body.dev_auth_key) {
+                throw new ErrorHandler(400, "Dev_auth_key cannot be empty");
+            };
+
+            if (!req.body.dev_auth_id) {
+                throw new ErrorHandler(400, "Dev_auth_id cannot be empty");
+            };
+
             // =============================================================
 
             // VERIFY ADMIN
@@ -66,7 +74,9 @@ module.exports = (app, configs, db) => {
             // SEARCH FOR USER IN DB
             let user = await User.findAll({
                 where: {
-                    id: req.params.user_id
+                    id: req.params.user_id,
+                    auth_id: req.body.dev_auth_id,
+                    auth_key: req.body.dev_auth_key
                 }
             }).catch(error => {
                 throw new ErrorHandler(500, error);
