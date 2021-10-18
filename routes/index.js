@@ -281,12 +281,22 @@ module.exports = (app, configs, db) => {
                 auth_id: security.hash(uuidv4()),
                 auth_key: security.hash(uuidv1()),
                 email: req.body.email,
-                password: password
+                password: security.hash(password)
             }).catch(error => {
                 throw new ErrorHandler(500, error);
             });
 
-            return res.status(200).json(newUser)
+            let result = {
+                id: newUser.id,
+                auth_id: newUser.auth_id,
+                auth_key: newUser.auth_key,
+                email: newUser.email,
+                password: password,
+                createdAt: newUser.createdAt,
+                updatedAt: newUser.updatedAt
+            }
+
+            return res.status(200).json(result)
         } catch (error) {
             next(error)
         }

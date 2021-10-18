@@ -121,7 +121,7 @@ connection.connect(function (err) {
             auth_id: auth_id,
             auth_key: auth_key,
             email: options.email,
-            password: password,
+            password: security.hash(password),
             createdAt: MOMENT().format('YYYY-MM-DD  HH:mm:ss.000'),
             updatedAt: MOMENT().format('YYYY-MM-DD  HH:mm:ss.000')
         };
@@ -135,7 +135,17 @@ connection.connect(function (err) {
                 connection.query('SELECT * FROM users WHERE email = ?', [options.email], async function (error, results, fields) {
                     if (error) throw error.message;
 
-                    console.log(results);
+                    let result = {
+                        id: results[0].id,
+                        auth_id: results[0].auth_id,
+                        auth_key: results[0].auth_key,
+                        email: results[0].email,
+                        password: password,
+                        createdAt: results[0].createdAt,
+                        updatedAt: results[0].updatedAt
+                    };
+
+                    console.log(result);
                     process.exit();
                 });
             });
