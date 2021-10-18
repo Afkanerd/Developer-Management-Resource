@@ -343,7 +343,16 @@ module.exports = (app, configs, db) => {
                 throw new ErrorHandler(409, "DUPLICATE USERS");
             }
 
-            return res.status(200).json(user)
+            let result = {
+                id: user[0].id,
+                auth_id: user[0].auth_id,
+                auth_key: user[0].auth_key,
+                email: user[0].email,
+                createdAt: user[0].createdAt,
+                updatedAt: user[0].updatedAt
+            }
+
+            return res.status(200).json(result)
         } catch (error) {
             next(error)
         }
