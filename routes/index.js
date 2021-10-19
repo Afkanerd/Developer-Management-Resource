@@ -302,6 +302,130 @@ module.exports = (app, configs, db) => {
         }
     });
 
+    app.post("/users/login", async (req, res, next) => {
+        try {
+            // ==================== REQUEST BODY CHECKS ====================
+            if (!req.body.email) {
+                throw new ErrorHandler(400, "Email cannot be empty");
+            };
+
+            if (!req.body.password) {
+                throw new ErrorHandler(400, "Password cannot be empty");
+            };
+            // =============================================================
+
+            let ipAddr = req.socket.remoteAddress;
+            let hash = security.hash(req.body.email + ipAddr);
+            let count = "";
+            let retries = 3;
+
+            // return console.log(ipAddr);
+
+            // VERIFY COUNT
+            await mysql.query(`CREATE TABLE IF NOT EXISTS retries(hash VARCHAR(64), count INT NOT NULL, createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, updatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP , PRIMARY KEY(hash));`).catch(error => {
+                throw new ErrorHandler(500, error);
+            });
+
+            count = await mysql.query(`SELECT * FROM retries WHERE hash = ?`, {
+                replacements: [hash],
+                type: QueryTypes.SELECT
+            }).catch(error => {
+                throw new ErrorHandler(500, error);
+            });
+
+            if (count.length < 1) {
+                let data = {
+                    hash: hash,
+                    count: 0
+                }
+                await mysql.query(`INSERT INTO retries SET hash = ?, count = ?;`, {
+                    replacements: [data.hash, data.count],
+                    type: QueryTypes.INSERT
+                }).catch(error => {
+                    throw new ErrorHandler(500, error);
+                });
+
+                count = await mysql.query(`SELECT * FROM retries WHERE hash = ?`, {
+                    replacements: [hash],
+                    type: QueryTypes.SELECT
+                }).catch(error => {
+                    throw new ErrorHandler(500, error);
+                });
+            }
+
+            if (count.length > 1) {
+                throw new ErrorHandler(409, "Duplicate retry records");
+            }
+
+            if (count[0].count >= retries) {
+                throw new ErrorHandler(429, "Maximum number of failed login attempts exceeded");
+            }
+            // SEARCH FOR USER IN DB
+            let user = await User.findAll({
+                where: {
+                    email: req.body.email,
+                    password: security.hash(req.body.password)
+                }
+            }).catch(error => {
+                throw new ErrorHandler(500, error);
+            });
+
+            if (user.length < 1) {
+                if (count[0].count + 1 == retries) {
+                    let code = generator.generate({
+                        length: 5,
+                        numbers: true,
+                        symbols: false,
+                        lowercase: true,
+                        uppercase: true
+                    });
+
+                    await mysql.query(`CREATE EVENT IF NOT EXISTS ${code} ON SCHEDULE AT CURRENT_TIMESTAMP + INTERVAL 1 MINUTE DO UPDATE retries SET count = ? WHERE hash = ?;`, {
+                        replacements: [0, hash],
+                        type: QueryTypes.UPDATE
+                    }).catch(error => {
+                        throw new ErrorHandler(500, error);
+                    });
+                }
+                await mysql.query(`UPDATE retries SET count = ? WHERE hash = ?;`, {
+                    replacements: [count[0].count + 1, hash],
+                    type: QueryTypes.UPDATE
+                }).catch(error => {
+                    throw new ErrorHandler(500, error);
+                });
+
+                throw new ErrorHandler(401, "USER DOESN'T EXIST");
+            }
+
+            if (user.length > 1) {
+                throw new ErrorHandler(409, "DUPLICATE USERS");
+            };
+
+            await mysql.query(`DELETE FROM retries WHERE hash = ?;`, {
+                replacements: [hash],
+                type: QueryTypes.DELETE
+            }).catch(error => {
+                throw new ErrorHandler(500, error);
+            });
+
+            let sessionId = security.hash(req.body.email + uuidv4());
+
+            await user[0].update({
+                session_id: sessionId
+            }).catch(error => {
+                throw new ErrorHandler(500, error);
+            });
+
+            let result = {
+                sessionId: sessionId
+            }
+
+            return res.status(200).json(result)
+        } catch (error) {
+            next(error)
+        }
+    });
+
     app.post("/users/profile", async (req, res, next) => {
         try {
             // ==================== REQUEST BODY CHECKS ====================

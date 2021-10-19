@@ -20,6 +20,9 @@ module.exports = (sequelize, Sequelize) => {
         password: {
             type: Sequelize.STRING,
         },
+        session_id: {
+            type: Sequelize.STRING,
+        },
         createdAt: {
             type: Sequelize.DATE
         },
