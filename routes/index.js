@@ -417,7 +417,8 @@ module.exports = (app, configs, db) => {
             });
 
             let result = {
-                sessionId: sessionId
+                sessionId: sessionId,
+                userId: user[0].id
             }
 
             return res.status(200).json(result)
@@ -490,7 +491,52 @@ module.exports = (app, configs, db) => {
         } catch (error) {
             next(error)
         }
-    })
+    });
+
+    app.post("/users/:user_id/profile", async (req, res, next) => {
+        try {
+            // ==================== REQUEST BODY CHECKS ====================
+            if (!req.body.session_id) {
+                throw new ErrorHandler(400, "SeassionId cannot be empty");
+            };
+
+            if (!req.params.user_id) {
+                throw new ErrorHandler(400, "UserId cannot be empty");
+            };
+            // =============================================================
+
+            // SEARCH FOR USER IN DB
+            let user = await User.findAll({
+                where: {
+                    session_id: req.body.session_id,
+                    id: req.params.user_id
+                }
+            }).catch(error => {
+                throw new ErrorHandler(500, error);
+            });
+
+            if (user.length < 1) {
+                throw new ErrorHandler(401, "USER DOESN'T EXIST");
+            }
+
+            if (user.length > 1) {
+                throw new ErrorHandler(409, "DUPLICATE USERS");
+            }
+
+            let result = {
+                id: user[0].id,
+                auth_id: user[0].auth_id,
+                auth_key: user[0].auth_key,
+                email: user[0].email,
+                createdAt: user[0].createdAt,
+                updatedAt: user[0].updatedAt
+            }
+
+            return res.status(200).json(result)
+        } catch (error) {
+            next(error)
+        }
+    });
 
     app.post("/projects", async (req, res, next) => {
         try {

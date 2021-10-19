@@ -59,7 +59,7 @@ afk add --email example@email.com --username mysql_username --password mysql_pas
 ```
 afk add --email example@email.com --generate test_password --username mysql_username --password mysql_password
 ```
-* Create a porject
+* Create a project
 ```
 afk add --task test_project_name --username mysql_username --password mysql_password
 ```
