@@ -427,6 +427,48 @@ module.exports = (app, configs, db) => {
         }
     });
 
+    app.post("/users/:user_id/logout", async (req, res, next) => {
+        try {
+            // ==================== REQUEST BODY CHECKS ====================
+            if (!req.body.session_id) {
+                throw new ErrorHandler(400, "SeassionId cannot be empty");
+            };
+
+            if (!req.params.user_id) {
+                throw new ErrorHandler(400, "UserId cannot be empty");
+            };
+            // =============================================================
+
+            // SEARCH FOR USER IN DB
+            let user = await User.findAll({
+                where: {
+                    session_id: req.body.session_id,
+                    id: req.params.user_id
+                }
+            }).catch(error => {
+                throw new ErrorHandler(500, error);
+            });
+
+            if (user.length < 1) {
+                throw new ErrorHandler(401, "USER DOESN'T EXIST");
+            }
+
+            if (user.length > 1) {
+                throw new ErrorHandler(409, "DUPLICATE USERS");
+            }
+
+            await user[0].update({
+                session_id: ""
+            }).catch(error => {
+                throw new ErrorHandler(500, error);
+            });
+
+            return res.status(200).json(true)
+        } catch (error) {
+            next(error)
+        }
+    });
+
     app.post("/users/profile", async (req, res, next) => {
         try {
             // ==================== REQUEST BODY CHECKS ====================
